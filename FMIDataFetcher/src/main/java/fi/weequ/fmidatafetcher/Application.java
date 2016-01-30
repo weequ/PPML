@@ -19,26 +19,16 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class);
-        System.out.println("lol");
     }
     
     @Bean
     public CommandLineRunner demo(WeatherObservationRepository repository, MultipointCoverageFetcher mcf) {
             return (args) -> {
-                    System.out.println("testing");
-                    if (repository == null) {
-                        System.out.println("repository is null");
-                    } else {
-                        System.out.println("repository is not null");
-                    }
                     try(InputStream is = mcf.fetch()) {
                         mcf.parse(is);
                     } catch(Exception ex) {
                         ex.printStackTrace();
                     }
-                    //for (WeatherObservation observation : repository.findAll()) {
-                    //        System.out.println(observation);
-                    //}
 
             };
     }

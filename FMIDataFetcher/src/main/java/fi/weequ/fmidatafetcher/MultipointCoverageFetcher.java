@@ -29,18 +29,8 @@ public class MultipointCoverageFetcher {
     
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     
-//    public static void main2(String[] args) {
-//        try(InputStream is = fetch()) {
-//            parse(is);
-//        } catch(Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
-
     @Autowired
     private WeatherObservationRepository weatherObservationRepository;
-    
-    
     
     public InputStream fetch() throws URISyntaxException, IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();

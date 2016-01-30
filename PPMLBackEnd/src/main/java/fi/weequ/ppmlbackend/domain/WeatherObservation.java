@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Table
 public class WeatherObservation extends BaseEntity {
     
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     Date time;
     
     @Column
@@ -113,5 +113,10 @@ public class WeatherObservation extends BaseEntity {
         this.tmax = tmax;
     }
 
+    
+    @Override
+    public String toString() {
+        return time+"=rrday: "+rrday+", temp: "+ttday+", snow: "+snow+", min temp:"+tmin+", max temp"+tmax;
+    }
     
 }

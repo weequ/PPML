@@ -1,6 +1,7 @@
 package fi.weequ.fmidatafetcher;
 
 import fi.weequ.ppmlbackend.domain.WeatherObservation;
+import fi.weequ.ppmlbackend.repository.WeatherObservationRepository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -18,27 +19,30 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-/**
- *
- * @author Antti Kaikkonen | TietoWeb Oy
- */
+@Service
 public class MultipointCoverageFetcher {
     
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     
-    public static void main(String[] args) {
-        try(InputStream is = fetch()) {
-            parse(is);
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+//    public static void main2(String[] args) {
+//        try(InputStream is = fetch()) {
+//            parse(is);
+//        } catch(Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    }
 
+    @Autowired
+    private WeatherObservationRepository weatherObservationRepository;
     
-    public static InputStream fetch() throws URISyntaxException, IOException {
+    
+    
+    public InputStream fetch() throws URISyntaxException, IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         String apiKey = Settings.getProperty("api-key");
         if (apiKey == null) {
@@ -64,7 +68,7 @@ public class MultipointCoverageFetcher {
     }
     
     
-    public static void parse(InputStream is) throws SAXException, IOException, ParserConfigurationException, ParseException {
+    public void parse(InputStream is) throws SAXException, IOException, ParserConfigurationException, ParseException {
         DocumentBuilderFactory factory =
         DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -86,14 +90,16 @@ public class MultipointCoverageFetcher {
             Double tmin = dayScanner.nextDouble();
             Double tmax = dayScanner.nextDouble();
             WeatherObservation weatherObservation = new WeatherObservation();
-            weatherObservation.setTime(new Date(calendar.getTime().getTime()));
+            weatherObservation.setDate(new Date(calendar.getTime().getTime()));
             calendar.add(Calendar.DATE, 1);
             weatherObservation.setRrday(rrday);
             weatherObservation.setTtday(ttday);
             weatherObservation.setSnow(snow);
             weatherObservation.setTmin(tmin);
             weatherObservation.setTmax(tmax);
+            weatherObservation.setWmo(Settings.getProperty("wmo"));
             System.out.println(weatherObservation);
+            weatherObservationRepository.save(weatherObservation);
             dayScanner.close();
         }
         scanner.close();

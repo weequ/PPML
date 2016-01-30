@@ -4,23 +4,22 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 
 @Entity
-@Table
+@Table(uniqueConstraints=
+           @UniqueConstraint(columnNames = {"date", "wmo"})) 
 public class WeatherObservation extends BaseEntity {
     
     @Column(nullable = false)
-    Date time;
+    @Temporal(TemporalType.DATE)
+    Date date;
     
     @Column
-    Long fmisid;
-    @Column
-    String name;
-    @Column
-    Long geoid;
-    @Column
-    Long wmo;
+    String wmo;
     
     @Column
     Double rrday;//sade
@@ -33,43 +32,19 @@ public class WeatherObservation extends BaseEntity {
     @Column
     Double tmax;//maximilämpötila
 
-    public Date getTime() {
-        return time;
+    public Date getDate() {
+        return date;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
+    public void setDate(Date time) {
+        this.date = time;
     }
 
-    public Long getFmisid() {
-        return fmisid;
-    }
-
-    public void setFmisid(Long fmisid) {
-        this.fmisid = fmisid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getGeoid() {
-        return geoid;
-    }
-
-    public void setGeoid(Long geoid) {
-        this.geoid = geoid;
-    }
-
-    public Long getWmo() {
+    public String getWmo() {
         return wmo;
     }
 
-    public void setWmo(Long wmo) {
+    public void setWmo(String wmo) {
         this.wmo = wmo;
     }
 
@@ -116,7 +91,7 @@ public class WeatherObservation extends BaseEntity {
     
     @Override
     public String toString() {
-        return time+"=rrday: "+rrday+", temp: "+ttday+", snow: "+snow+", min temp:"+tmin+", max temp"+tmax;
+        return date+"=rrday: "+rrday+", temp: "+ttday+", snow: "+snow+", min temp:"+tmin+", max temp:"+tmax;
     }
     
 }

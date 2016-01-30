@@ -19,6 +19,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -32,7 +33,7 @@ public class MultipointCoverageFetcher {
     @Autowired
     private WeatherObservationRepository weatherObservationRepository;
     
-    public InputStream fetch() throws URISyntaxException, IOException {
+    public InputStream fetch(String startTime, String endTime) throws URISyntaxException, IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         String apiKey = Settings.getProperty("api-key");
         if (apiKey == null) {
@@ -45,8 +46,8 @@ public class MultipointCoverageFetcher {
         .setParameter("request", "getFeature")
         .setParameter("storedquery_id", "fmi::observations::weather::daily::multipointcoverage")
         .setParameter("wmo", Settings.getProperty("wmo"))
-        .setParameter("starttime", Settings.getProperty("starttime"))
-        .setParameter("endtime", Settings.getProperty("endtime"))
+        .setParameter("starttime", startTime)
+        .setParameter("endtime", endTime)
         .build();
         HttpGet httpget = new HttpGet(uri);
         CloseableHttpResponse response = httpclient.execute(httpget);
@@ -57,8 +58,20 @@ public class MultipointCoverageFetcher {
         return is;
     }
     
+    public InputStream fetch() throws URISyntaxException, IOException {
+        return fetch(Settings.getProperty("starttime"), Settings.getProperty("endtime"));
+    }
+    
+    private Double numericOrNull(Double d) {
+        if (d == null || d.isNaN() || d.isInfinite()) return null;
+        return d;
+    }
     
     public void parse(InputStream is) throws SAXException, IOException, ParserConfigurationException, ParseException {
+        parse(is, Settings.getProperty("starttime"));
+    }
+    
+    public void parse(InputStream is, String startDateStr) throws SAXException, IOException, ParserConfigurationException, ParseException {
         DocumentBuilderFactory factory =
         DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -67,18 +80,19 @@ public class MultipointCoverageFetcher {
         
         String allValues = doc.getElementsByTagName("gml:doubleOrNilReasonTupleList").item(0).getTextContent().trim();
         //System.out.println("values:"+allValues);
-        Date startDate = sdf.parse(Settings.getProperty("starttime"));
+        Date startDate = sdf.parse(startDateStr);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
         Scanner scanner = new Scanner(allValues);
         while (scanner.hasNextLine()) {
             String dayValues = scanner.nextLine().trim();
             Scanner dayScanner = new Scanner(dayValues);
-            Double rrday = dayScanner.nextDouble();
-            Double ttday = dayScanner.nextDouble();
-            Double snow = dayScanner.nextDouble();
-            Double tmin = dayScanner.nextDouble();
-            Double tmax = dayScanner.nextDouble();
+            Double rrday = numericOrNull(dayScanner.nextDouble());
+            Double ttday = numericOrNull(dayScanner.nextDouble());
+            Double snow = numericOrNull(dayScanner.nextDouble());
+            Double tmin = numericOrNull(dayScanner.nextDouble());
+            Double tmax = numericOrNull(dayScanner.nextDouble());
+            dayScanner.close();
             WeatherObservation weatherObservation = new WeatherObservation();
             weatherObservation.setDate(new Date(calendar.getTime().getTime()));
             calendar.add(Calendar.DATE, 1);
@@ -88,9 +102,14 @@ public class MultipointCoverageFetcher {
             weatherObservation.setTmin(tmin);
             weatherObservation.setTmax(tmax);
             weatherObservation.setWmo(Settings.getProperty("wmo"));
-            System.out.println(weatherObservation);
-            weatherObservationRepository.save(weatherObservation);
-            dayScanner.close();
+            //System.out.println(weatherObservation);
+            try {
+                weatherObservationRepository.save(weatherObservation);
+            } catch(ConstraintViolationException cve) {
+                System.out.println("Constraint violation while saving: "+weatherObservation);
+            } catch(Exception ex) {
+                System.out.println("Exception while saving:"+ weatherObservation);
+            }
         }
         scanner.close();
     }

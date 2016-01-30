@@ -24,11 +24,15 @@ public class Application {
     @Bean
     public CommandLineRunner demo(WeatherObservationRepository repository, MultipointCoverageFetcher mcf) {
             return (args) -> {
-                    try(InputStream is = mcf.fetch()) {
-                        mcf.parse(is);
-                    } catch(Exception ex) {
-                        ex.printStackTrace();
+                    for (int year = 2004; year <= 2016; year++) {
+                        try(InputStream is = mcf.fetch(year+"-01-01T00:00:00Z", year+"-12-31T00:00:00Z")) {
+                            mcf.parse(is, year+"-01-01T00:00:00Z");
+                        } catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+
                     }
+
 
             };
     }

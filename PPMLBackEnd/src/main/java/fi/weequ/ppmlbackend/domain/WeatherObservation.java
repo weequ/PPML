@@ -16,21 +16,21 @@ public class WeatherObservation extends BaseEntity {
     
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    Date date;
+    private Date date;
     
     @Column
-    String wmo;
+    private String wmo;
     
     @Column
-    Double rrday;//sade
+    private Double rrday;//sade
     @Column
-    Double ttday;//keskilämpötila
+    private Double ttday;//keskilämpötila
     @Column
-    Double snow;//lumen paksuus
+    private Double snow;//lumen paksuus
     @Column
-    Double tmin;//minimilämpötila
+    private Double tmin;//minimilämpötila
     @Column
-    Double tmax;//maximilämpötila
+    private Double tmax;//maximilämpötila
 
     public Date getDate() {
         return date;

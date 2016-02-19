@@ -1,3 +1,6 @@
 /PPMLBackEnd/target/
 /FMIDataFetcher/target/
 /FMIDataFetcher/settings.properties
+/FingridDataFetcher/target/
+/ModelTrainer/target/
+/FMIDataFetcher/results/*

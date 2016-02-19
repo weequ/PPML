@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @Service
-public class MultipointCoverageFetcher {
+public class DailyMultipointCoverageFetcher {
     
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     

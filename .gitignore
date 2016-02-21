@@ -3,4 +3,7 @@
 /FMIDataFetcher/settings.properties
 /FingridDataFetcher/target/
 /ModelTrainer/target/
+/ModelTrainer/binaryfiles
 /FMIDataFetcher/results/*
+/FingridPrediction/target/
+/CombineFMICSV/target/

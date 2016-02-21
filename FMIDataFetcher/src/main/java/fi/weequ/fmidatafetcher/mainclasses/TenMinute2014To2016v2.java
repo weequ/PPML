@@ -8,8 +8,8 @@ import fi.weequ.fmidatafetcher.WeatherObservationParser;
 import fi.weequ.fmidatafetcher.WeatherObservationsFetcher;
 import fi.weequ.fmidatafetcher.util.FMIUtils;
 import java.io.FileWriter;
-import java.util.Arrays;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Bean;
@@ -36,38 +36,46 @@ public class TenMinute2014To2016v2 {
     public CommandLineRunner demo(WeatherObservationsFetcher wof) {
         return (args) -> {
             
-            //CSVWriter csvWriter = new CSVWriter(new FileWriter("tuloksett.csv"), ',');
+            CSVWriter csvWriter = new CSVWriter(new FileWriter("results/kuopio maaninka lämpötilat 2014TO2016.csv"), ',');
             
-            DateTime startDate = new DateTime().withYear(2014)
+            DateTime startDate = new DateTime()
+                    .withZone(DateTimeZone.UTC)
+                    .withYear(2014)
                     .monthOfYear()
                     .withMinimumValue()
                     .dayOfMonth()
                     .withMinimumValue()
                     .withTimeAtStartOfDay();
-            
             while(startDate.getYear() < 2016) {
 
                 DateTime endDate = startDate.plusDays(1);
-                
                 FMIQuery query = new FMIQueryBuilder(Settings.getProperty("api-key"), 
                 "fmi::observations::weather::multipointcoverage")
                 .setStartTime(FMIUtils.jodaToFMIDate(startDate))
                 .setEndTime(FMIUtils.jodaToFMIDate(endDate.minusSeconds(1)))
-                .setWmo(Settings.getProperty("wmo")).build();
+                //.setWmo(Settings.getProperty("wmo"))
+                //.setPlace("Espoo")
+                .setTimeStep("10")
+                .setFMSID("101572")
+                .setParameters("t2m")
+                .build();
                 
                 WeatherObservationParser wop = new WeatherObservationParser(query.execute(), 
-                        FMIUtils.jodaToFMIDate(startDate));
-                
+                        startDate, true);
+                int count = 0;
                 for (String[] sa : wop) {
-                    System.out.println(Arrays.toString(sa));
-                    //csvWriter.writeNext(sa);
+                    csvWriter.writeNext(sa);
+                    count++;
+                }
+                if (count < 144) {
+                    System.out.println("count = "+count);
+                    System.out.println("startDate = "+FMIUtils.jodaToFMIDate(startDate)+", endTime="+FMIUtils.jodaToFMIDate(endDate.minusSeconds(1)));
                 }
                 
                 startDate = endDate;
-                Thread.sleep(100);
-                return;
+                Thread.sleep(500);
             }
-            //csvWriter.close();
+            csvWriter.close();
 
         };
     }

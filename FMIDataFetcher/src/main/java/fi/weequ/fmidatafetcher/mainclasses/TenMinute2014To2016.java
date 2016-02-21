@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 //@EnableJpaRepositories(basePackages = {"fi.weequ.ppmlbackend.repository"})
 //@EnableAutoConfiguration
 //@EnableTransactionManagement
+@Deprecated
 public class TenMinute2014To2016 {
     public static void main(String[] args) {
         SpringApplication.run(TenMinute2014To2016.class);

@@ -1,0 +1,21 @@
+name = fmisid
+Rovaniemi rautatieasema = 101928
+
+Helsinki kaisaniemi = 100971
+
+Kuopio maaninka = 101572
+
+Kuopio ritoniemi = 101580
+
+Kuopio savilahti = 101586
+
+
+
+http://data.fmi.fi/fmi-apikey//wfs?request=getFeature&storedquery_id=fmi::observations::weather::multipointcoverage&bbox=-1000000,-1000000,1000000,1000000&starttime=2010-01-01T00:00&endtime=2010-01-01T00:10&parameters=t2m
+
+place1time1 place1time2 place2time1 place2time2
+
+
+[place][time][parameter]
+place1time1parameter1 place1time1parameter2 place1time2parameter1 place1time2parameter2 
+place2time1parameter1 place2time1parameter2 place2time2parameter1 place2time2parameter2

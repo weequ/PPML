@@ -4,15 +4,14 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.joda.time.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -25,31 +24,21 @@ public class WeatherObservationParser implements CSVIterable {
     
     private final DocumentBuilderFactory factory;
     private final DocumentBuilder builder;
-    //private Document doc;
-    //private Scanner scanner;
+    private DateTime currentTime;
+    private boolean includeTime;
     
-    //private String allValues;
-    private final Calendar currentTime;//Mutable
     
-    //private String[] params;
     
-    //private boolean first;
-    
-    public WeatherObservationParser(InputStream is, String startDate) throws ParseException, ParserConfigurationException {
+    public WeatherObservationParser(InputStream is, DateTime startDate, boolean includeTime) throws ParseException, ParserConfigurationException {
         factory = DocumentBuilderFactory.newInstance();
         builder = factory.newDocumentBuilder();
-        
         this.is = is;
-        Date start = sdf.parse(startDate);
-        currentTime = Calendar.getInstance();
-        currentTime.setTime(start);
+        currentTime = startDate;
+        this.includeTime = includeTime;
     }
     
     
-    private Double numericOrNull(Double d) {
-        if (d == null || d.isNaN() || d.isInfinite()) return null;
-        return d;
-    }
+
     
     
     @Override
@@ -87,13 +76,16 @@ public class WeatherObservationParser implements CSVIterable {
 
             @Override
             public String[] next() {
-                if (first) {
-                    first = false;
-                    return params;
-                }
+//                if (first) {
+//                    first = false;
+//                    return params;
+//                }
                 String tenMinValues = scanner.nextLine().trim();
                 Scanner valueScanner = new Scanner(tenMinValues);
                 ArrayList<String> values = new ArrayList<>();
+                if (includeTime) {
+                    values.add(""+currentTime.getMillis());
+                }
                 while(valueScanner.hasNext()) {
                     values.add(valueScanner.next());
                 }
@@ -101,7 +93,7 @@ public class WeatherObservationParser implements CSVIterable {
                 if (values.isEmpty()) {
                     throw new NoSuchElementException();
                 }
-                currentTime.add(Calendar.MINUTE, 10);
+                currentTime = currentTime.plusMinutes(10);
                 return values.toArray(new String[values.size()]);
             }
         };

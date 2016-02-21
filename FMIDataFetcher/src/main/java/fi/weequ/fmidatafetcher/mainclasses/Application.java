@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = {"fi.weequ.ppmlbackend.repository"})
 @EnableAutoConfiguration
 @EnableTransactionManagement
+@Deprecated
 public class Application {
     
     public static CSVWriter writer = null;

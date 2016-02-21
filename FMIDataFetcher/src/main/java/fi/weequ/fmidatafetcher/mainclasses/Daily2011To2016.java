@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = {"fi.weequ.ppmlbackend.repository"})
 @EnableAutoConfiguration
 @EnableTransactionManagement
+@Deprecated
 public class Daily2011To2016 {
     public static void main(String[] args) {
         SpringApplication.run(Daily2011To2016.class);

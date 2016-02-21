@@ -32,6 +32,30 @@ public class FMIQueryBuilder {
         return this;
     }
     
+    public FMIQueryBuilder setPlace(String place) {
+        uriBuilder = uriBuilder.setParameter("place", place);
+        return this;
+    }
+    
+    public FMIQueryBuilder setFMSID(String fmisid) {
+        uriBuilder = uriBuilder.setParameter("fmisid", fmisid);
+        return this;
+    }
+    
+    public FMIQueryBuilder setParameters(String... parameters) {
+        String commaSeparated = parameters[0];
+        for (int i = 1; i < parameters.length; i++) {
+            commaSeparated+=","+parameters[i];
+        }
+        uriBuilder = uriBuilder.setParameter("parameters", commaSeparated);
+        return this;
+    }
+    
+    public FMIQueryBuilder setTimeStep(String timeStep) {
+        uriBuilder = uriBuilder.setParameter("timestep", timeStep);
+        return this;
+    }
+    
     public FMIQuery build() throws URISyntaxException {
         return new FMIQuery(uriBuilder.build());
     }

@@ -12,14 +12,13 @@ import org.encog.ml.data.versatile.sources.CSVDataSource;
 import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
 import org.encog.ml.model.EncogModel;
-import org.encog.ml.model.config.MethodConfig;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.obj.SerializeObject;
 
 
-public class Test {
+public class Trainer {
     
     //Modified from encog sources
     public static String suggestModelArchitecture(VersatileMLDataSet dataset) {

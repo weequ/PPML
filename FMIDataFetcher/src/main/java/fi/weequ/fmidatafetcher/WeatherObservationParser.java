@@ -19,44 +19,35 @@ import org.w3c.dom.NodeList;
 public class WeatherObservationParser implements CSVIterable {
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    
-    private final InputStream is;
-    
-    private final DocumentBuilderFactory factory;
-    private final DocumentBuilder builder;
+
+    private final Document document;
     private DateTime currentTime;
     private boolean includeTime;
     
-    
-    
-    public WeatherObservationParser(InputStream is, DateTime startDate, boolean includeTime) throws ParseException, ParserConfigurationException {
-        factory = DocumentBuilderFactory.newInstance();
-        builder = factory.newDocumentBuilder();
-        this.is = is;
-        currentTime = startDate;
-        this.includeTime = includeTime;
+    public WeatherObservationParser(Document document) throws ParseException, ParserConfigurationException {
+        this(document, DateTime.now(), false);
     }
     
-    
-
-    
+    public WeatherObservationParser(Document document, DateTime startDate, boolean includeTime) throws ParseException, ParserConfigurationException {
+        currentTime = startDate;
+        this.includeTime = includeTime;
+        this.document = document;
+    }
     
     @Override
     public Iterator<String[]> iterator() {
         
-        Document doc;
         String allValues;
         Scanner scanner;
         String[] params;
         try {
-            doc = builder.parse(is);
-            allValues = doc.getElementsByTagName("gml:doubleOrNilReasonTupleList").item(0).getTextContent().trim();
+            allValues = document.getElementsByTagName("gml:doubleOrNilReasonTupleList").item(0).getTextContent().trim();
             scanner = new Scanner(allValues);
         } catch (Exception ex) {
             return Collections.emptyIterator();
         }
         
-        NodeList paramNodes = doc.getElementsByTagName("swe:field");
+        NodeList paramNodes = document.getElementsByTagName("swe:field");
         if (paramNodes.getLength() == 0) return Collections.emptyIterator();
         params = new String[paramNodes.getLength()];
         for (int paramIndex = 0; paramIndex <  paramNodes.getLength(); paramIndex++) {

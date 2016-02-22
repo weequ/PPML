@@ -42,6 +42,11 @@ public class FMIQueryBuilder {
         return this;
     }
     
+    public FMIQueryBuilder setLatLong(double latitude, double longitude) {
+        uriBuilder = uriBuilder.setParameter("latlon", ""+latitude+","+longitude);
+        return this;
+    }
+    
     public FMIQueryBuilder setParameters(String... parameters) {
         String commaSeparated = parameters[0];
         for (int i = 1; i < parameters.length; i++) {

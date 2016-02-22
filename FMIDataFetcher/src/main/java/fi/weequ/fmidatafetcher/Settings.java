@@ -13,7 +13,7 @@ public class Settings {
         try {
             if (properties == null) {
                 properties = new Properties();
-                properties.load(new FileInputStream("settings.properties"));
+                properties.load(new FileInputStream("/data/PPML/settings.properties"));
             }
             return properties.getProperty(key);
         } catch(Exception ex) {

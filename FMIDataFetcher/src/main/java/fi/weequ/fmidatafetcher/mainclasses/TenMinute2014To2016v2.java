@@ -13,12 +13,11 @@ import java.text.ParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.xml.sax.SAXException;
 
 public class TenMinute2014To2016v2 {
-    public static void main(String[] args) throws InterruptedException, IOException, ParseException, URISyntaxException, ParserConfigurationException {
+    
+    public static void main(String[] args) throws InterruptedException, IOException, ParseException, URISyntaxException, ParserConfigurationException, SAXException {
         CSVWriter csvWriter = new CSVWriter(new FileWriter("results/kuopio maaninka lämpötilat 2014TO2016.csv"), ',');
             
         DateTime startDate = new DateTime()
@@ -59,7 +58,6 @@ public class TenMinute2014To2016v2 {
             Thread.sleep(500);
         }
         csvWriter.close();
-        SpringApplication.run(TenMinute2014To2016v2.class);
     }
 
 }

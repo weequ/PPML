@@ -2,7 +2,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <c:import url="header.jsp"></c:import>
-<c:url var="actionUrl" value="/predict"/>
+<c:url var="actionUrl" value="/custom"/>
 <form:form action="${actionUrl}" commandName="predictionForm">
     <table>
         <tr>

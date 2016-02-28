@@ -7,6 +7,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
-        <title>JSP Page</title>
+        <title>Finland electricity consumption</title>
     </head>
     <body>

@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 //kuopio ritoniemi: 62.80,27.90
 //rovaniemi rautatieasema: 66.50,25.71
 @Controller
-public class TestController {
+public class MainController {
     
     private final static double helsinki_kaisaniemi_lat = 60.18;
     private final static double helsinki_kaisaniemi_lon = 24.94;
@@ -258,6 +258,7 @@ public class TestController {
     
     private double predict(double helsinki, double kuopio, double rovaniemi, int dayOfWeek, int hourOfDay) throws IOException, ClassNotFoundException {
         NormalizationHelper normalizationHelper = (NormalizationHelper) SerializeObject.load(new File("/data/PPML/normalization.bin"));
+        System.out.println("normalizationhelper:"+normalizationHelper);
         MLRegression mlModel = (MLRegression) EncogDirectoryPersistence.loadObject(new File("/data/PPML/bestmethod.eg"));
         String[] inputLine = {""+helsinki, ""+kuopio, ""+rovaniemi, ""+dayOfWeek, ""+hourOfDay};
         double[] normalizedInput = new double[normalizationHelper.calculateNormalizedInputCount()];

@@ -42,6 +42,6 @@
             <td align="left"><form:errors path="hourOfDay" cssClass="error"/></td>
         </tr>
     </table>
-    <input type="submit" value="Predict energy consumption"/>
+    <input type="submit" value="Predict electricity consumption"/>
 </form:form>
 <c:import url="footer.jsp"></c:import>

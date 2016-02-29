@@ -2,22 +2,49 @@ package fi.weequ.fingridprediction.service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import fi.weequ.fingriddatafetcher.FingridDataFetcher;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ForecastHistoryService {
-    private SortedMap<DateTime, double[]> predictTimeToPredictions = loadForecastHistory();
+    private final SortedMap<DateTime, double[]> predictTimeToPredictions = loadForecastHistory();
+    private final SortedMap<DateTime, Double> fingridHistory = loadFingridHistory();
     
     private static final String HISTORY_FILE = "/data/PPML/history.csv";
+   
+    private SortedMap<DateTime, Double> loadFingridHistory() {
+        try {
+            return FingridDataFetcher.fetch(new DateTime(DateTimeZone.UTC).minusDays(200), new DateTime(DateTimeZone.UTC).plusDays(1));
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            return new TreeMap<>();
+        }
+    }
+    
+    @Scheduled(fixedDelay = 1000*60*60)//Every 60 minutes
+    public void loadFingridLatest() throws URISyntaxException, IOException {
+        DateTime from;
+        if (fingridHistory.isEmpty()) {
+            from = new DateTime(DateTimeZone.UTC).minusDays(200);
+        } else {
+            from = fingridHistory.lastKey().minusDays(1);
+        }
+        DateTime to = new DateTime(DateTimeZone.UTC).plusDays(1);
+        fingridHistory.putAll(FingridDataFetcher.fetch(from, to));
+        System.out.println("Loading fingrid data from "+from+" to "+to);
+    }
+    
     
     /**
      * Load from file if available. Otherwise empty history
@@ -40,7 +67,7 @@ public class ForecastHistoryService {
         } catch(Exception ex) {
             return new TreeMap<>();
         }
-    } 
+    }
     
     /**
      * Save current forecast history to file
@@ -63,6 +90,27 @@ public class ForecastHistoryService {
         writer.close();
     }
     
+    
+    public Object[] getHistoryCompareData() {
+        DateTime firstPredictions = predictTimeToPredictions.firstKey().plusHours(24);
+        DateTime firstData = fingridHistory.firstKey();
+        DateTime since;
+        if (firstPredictions.isAfter(firstData)) {
+            since = firstPredictions;
+        } else {
+            since = firstData;
+        }
+        return new Object[] {getForecastHistory(since, 24), getFingridHistory(since)};
+    }
+    
+    /**
+     * 
+     * @return An highcharts readable array
+     */
+    public Object[] getFingridHistory(DateTime since) {
+        return fingridHistory.tailMap(since).entrySet().stream().map(e -> new Object[] {e.getKey().getMillis(), e.getValue()}).toArray();
+    }
+    
     /**
      * 
      * @param since
@@ -70,7 +118,7 @@ public class ForecastHistoryService {
      * @return An highcharts readable array
      */
     public Object[] getForecastHistory(DateTime since, int predictionHours) {
-        return predictTimeToPredictions.tailMap(since).entrySet().stream().map(e -> new Object[] {e.getKey().plusHours(predictionHours).getMillis(), e.getValue()[predictionHours]}).toArray();
+        return predictTimeToPredictions.tailMap(since.minusHours(24)).entrySet().stream().map(e -> new Object[] {e.getKey().plusHours(predictionHours).getMillis(), e.getValue()[predictionHours]}).toArray();
     }
     
     public void addToForecastHistory(DateTime forecastTime, double[] forecast) throws IOException {

@@ -12,6 +12,7 @@ import org.encog.ml.data.versatile.sources.CSVDataSource;
 import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
 import org.encog.ml.model.EncogModel;
+import org.encog.ml.model.config.MethodConfig;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.csv.CSVFormat;
@@ -38,7 +39,7 @@ public class Trainer {
     
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         CSVFormat format = new CSVFormat('.', ',');
-        VersatileDataSource source = new CSVDataSource(new File("data2.csv"), true,
+        VersatileDataSource source = new CSVDataSource(new File("binaryfiles/data2.csv"), true,
 					format);
         VersatileMLDataSet data = new VersatileMLDataSet(source);
         data.getNormHelper().setFormat(format);
@@ -71,18 +72,18 @@ public class Trainer {
         model.setReport(new ConsoleStatusReportable());
         data.normalize();
         
-        model.holdBackValidation(0.3, true, 1001);
+        model.holdBackValidation(0.2, true, 1001);
         
         model.selectTrainingType(data);
         
-//        MethodConfig config = model.getMethodConfigurations().get(MLMethodFactory.TYPE_SVM);
-//        System.out.println("suggested training type:"+config.suggestTrainingType());
+        MethodConfig config = model.getMethodConfigurations().get(MLMethodFactory.TYPE_FEEDFORWARD);
+        System.out.println("suggested training type:"+config.suggestTrainingType());
 //        System.out.println("suggested training args:"+config.suggestTrainingArgs(config.suggestTrainingType()));
 //        System.out.println("asd1:"+config.suggestTrainingArgs(MLMethodFactory.TYPE_FEEDFORWARD));
 //        System.out.println("asd:"+config.suggestModelArchitecture(data));
         
         
-        MLRegression bestMethod = (MLRegression) model.crossvalidate(2,
+        MLRegression bestMethod = (MLRegression) model.crossvalidate(5,
 					true);
         
         if (bestMethod instanceof BasicNetwork) {
@@ -104,17 +105,17 @@ public class Trainer {
         // Display our normalization parameters.
         NormalizationHelper helper = data.getNormHelper();
         System.out.println("helper:"+helper);
-        SerializeObject.save(new File("normalization.eg"), helper);
-        NormalizationHelper helperloaded = (NormalizationHelper) SerializeObject.load(new File("normalization.eg"));
-        System.out.println("helperloaded"+helperloaded
-        );
+        SerializeObject.save(new File("binaryfiles/normalization.eg"), helper);
+        //NormalizationHelper helperloaded = (NormalizationHelper) SerializeObject.load(new File("binaryfiles/normalization.eg"));
+        //System.out.println("helperloaded"+helperloaded
+        //);
         //EncogDirectoryPersistence.saveObject(new File("normalization"), helper);
         //System.out.println(helper.toString());
 
         // Display the final model.
         System.out.println("Final model: " + bestMethod);
-        EncogDirectoryPersistence.saveObject(new File("bestmethod.EG"), bestMethod);
-        MLRegression bm2 = (MLRegression) EncogDirectoryPersistence.loadObject(new File("bestmethod.EG"));
-        System.out.println("bm2:"+bm2);
+        EncogDirectoryPersistence.saveObject(new File("binaryfiles/bestmethod.EG"), bestMethod);
+        //MLRegression bm2 = (MLRegression) EncogDirectoryPersistence.loadObject(new File("binaryfiles/bestmethod2.EG"));
+        //System.out.println("bm2:"+bm2);
     }
 }

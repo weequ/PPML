@@ -6,7 +6,7 @@
 <script>
     $(function () {
         // $.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=usdeur.json&callback=?', function (data) {
-        $.getJSON('forecasthistory/24', function (data) {
+        $.getJSON('historyCompareData', function (data) {
              $('#container').highcharts({
                  chart: {
                      zoomType: 'x',
@@ -66,11 +66,12 @@
                  series: [{
                      type: 'line',
                      name: '24 hour electricity consumption forecast',
-                     data: data
+                     data: data[0]
                  },
                  {
                      type: 'line',
-                     name: 'actual electricity consumption (TODO)'
+                     name: 'actual electricity consumption',
+                     data: data[1]
                  }]
              });
          });

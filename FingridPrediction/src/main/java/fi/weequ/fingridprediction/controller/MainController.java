@@ -99,6 +99,17 @@ public class MainController {
     }
     
     
+    @RequestMapping(value="historyCompareData", method = RequestMethod.GET)
+     public @ResponseBody Object[] getHistoryCompareData() {
+        return forecastHistoryService.getHistoryCompareData();
+    }
+    
+    
+//    @RequestMapping(value="fingridhistory", method = RequestMethod.GET)
+//    public @ResponseBody Object[] getFingridHistory() {
+//        return forecastHistoryService.getFingridHistory();//Since 1970..
+//    }
+    
     @RequestMapping(value="forecasthistory/{predictionHours}", method = RequestMethod.GET)
     public @ResponseBody Object[] getForecastHistory(@PathVariable String predictionHours) {
         return forecastHistoryService.getForecastHistory(new DateTime(0), Integer.parseInt(predictionHours));//Since 1970..

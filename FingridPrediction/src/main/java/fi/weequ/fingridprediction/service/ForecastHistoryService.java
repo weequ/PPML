@@ -118,7 +118,7 @@ public class ForecastHistoryService {
      * @return An highcharts readable array
      */
     public Object[] getForecastHistory(DateTime since, int predictionHours) {
-        return predictTimeToPredictions.tailMap(since.minusHours(24)).entrySet().stream().map(e -> new Object[] {e.getKey().plusHours(predictionHours).getMillis(), e.getValue()[predictionHours]}).toArray();
+        return predictTimeToPredictions.tailMap(since.minusHours(predictionHours)).entrySet().stream().map(e -> new Object[] {e.getKey().plusHours(predictionHours).getMillis(), e.getValue()[predictionHours]}).toArray();
     }
     
     public void addToForecastHistory(DateTime forecastTime, double[] forecast) throws IOException {

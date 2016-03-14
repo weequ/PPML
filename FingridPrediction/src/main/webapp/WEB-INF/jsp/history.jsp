@@ -10,28 +10,7 @@
              $('#container').highcharts({
                  chart: {
                      zoomType: 'x',
-                     marginLeft: 70,
-                     events: {
-                         load: function () {
-                             return;
-                             // set up the updating of the chart each second
-                             var axis = this.xAxis[0];
-                             setInterval(function () {
-                                 axis.removePlotLine('current-time');
-                                 var plotLine = {
-                                     value: new Date().getTime(),
-                                     color: 'green',
-                                     id: 'current-time',
-                                     dashStyle: 'shortdash',
-                                     width: 2,
-                                     label: {
-                                         text: 'Current time'
-                                     }
-                                 }
-                                 axis.addPlotLine(plotLine);
-                             }, 10000);
-                         }
-                     }
+                     marginLeft: 70
                  },
                  title: {
                      text: '24 hour forecast history'
@@ -40,7 +19,16 @@
                      title: {
                          text: 'Time (UTC)'
                      },
-                     
+                     plotLines: [{
+                                value: Date.UTC(2016, 2, 8, 18),
+                                color: 'green',
+                                id: 'dasfsd',
+                                dashStyle: 'shortdash',
+                                width: 2,
+                                label: {
+                                    text: 'Changed model type from NN to SVM'
+                                }
+                            }],
                      type: 'datetime'
                  },
                  yAxis: {
@@ -51,8 +39,7 @@
                         formatter: function () {
                             return Highcharts.numberFormat(this.value,0);//this.value;
                         }
-                    }
-
+                     }
                  },
                  legend: {
                      layout: 'vertical',

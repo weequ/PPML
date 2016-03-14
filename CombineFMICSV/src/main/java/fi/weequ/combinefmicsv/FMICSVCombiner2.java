@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -16,8 +15,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 
-public class FMICSVCombiner {
-    
+public class FMICSVCombiner2 {
     private static Map<Long, Double> readElectricityCSV(String filePath) throws FileNotFoundException {
         Map<Long, Double> result = new TreeMap<>();
         CSVReader csvReader = new CSVReader(new FileReader(filePath), ',');
@@ -62,6 +60,8 @@ public class FMICSVCombiner {
     }
     
     public static void main(String[] args) throws FileNotFoundException, IOException {
+        int lag = 5;
+        
         TreeMap<Long, Double> timeToHelsinkiTemp = new TreeMap<>();
         TreeMap<Long, Double> timeToKuopioTemp = new TreeMap<>();
         TreeMap<Long, Double> timeToRovaniemiTemp = new TreeMap<>();
@@ -78,19 +78,40 @@ public class FMICSVCombiner {
         System.out.println(timeToElectricityConsumption.size());
         timeToElectricityConsumption.keySet().retainAll(timeToRovaniemiTemp.keySet());
         System.out.println(timeToElectricityConsumption.size());
-        CSVWriter writer = new CSVWriter(new FileWriter("data2.csv"));
+        CSVWriter writer = new CSVWriter(new FileWriter("data4.csv"));
         writer.writeNext(new String[] {"time", "energyConsumption", 
             "temp helsinki kaisaniemi", "temp kuopio ritoniemi", "temp rovaniemi rautatieasema", 
             "dayofweek", "hourofday"});
-        for (long time : timeToElectricityConsumption.keySet()) {
+        outerloop: for (long time : timeToElectricityConsumption.keySet()) {
+            double helsinkiLagTotal = timeToHelsinkiTemp.get(time);
+            double kuopioLagTotal = timeToKuopioTemp.get(time);
+            double rovaniemiLagTotal = timeToRovaniemiTemp.get(time);
+            Long currentTime = time;
+            for (int i = 0; i < lag; i++) { //Ignore if there is less than lag consecutive entries
+                Long previousTime = timeToElectricityConsumption.lowerKey(currentTime);
+                if (previousTime == null || currentTime-previousTime > 1000*60*60) {
+                    continue outerloop;
+                }
+                helsinkiLagTotal += timeToHelsinkiTemp.get(previousTime);
+                kuopioLagTotal += timeToKuopioTemp.get(previousTime);
+                rovaniemiLagTotal += timeToRovaniemiTemp.get(previousTime);
+                currentTime = previousTime;
+            }
+            double helsinkiLagAverage = helsinkiLagTotal/(lag+1);
+            double kuopioLagAverage = kuopioLagTotal/(lag+1);
+            double rovaniemiLagAverage = rovaniemiLagTotal/(lag+1);
+            Long previousTime = timeToElectricityConsumption.lowerKey(time);
+            if (previousTime == null || time-previousTime > 1000*60*60) {
+                continue;
+            }
             DateTime dt = new DateTime(time);
             dt = dt.withZone(DateTimeZone.forOffsetHours(2));
             writer.writeNext(new String[] {
                 ""+time, 
                 ""+timeToElectricityConsumption.get(time), 
-                ""+timeToHelsinkiTemp.get(time),
-                ""+timeToKuopioTemp.get(time),
-                ""+timeToRovaniemiTemp.get(time),
+                ""+helsinkiLagAverage,
+                ""+kuopioLagAverage,
+                ""+rovaniemiLagAverage,
                 ""+dt.getDayOfWeek(),
                 ""+dt.getHourOfDay()});
         }
